@@ -11,41 +11,45 @@ import java.util.Optional;
 @RequestMapping("/api/runs")
 public class RunController {
 
-    private final JdbcRunRepository jdbcRunRepository;
+    private final RunRepository runRepository;
 
-    public RunController(JdbcRunRepository jdbcRunRepository) {
-        this.jdbcRunRepository = jdbcRunRepository;
+    public RunController(RunRepository runRepository) {
+        this.runRepository = runRepository;
     }
 
     @GetMapping("")
     List<Run> findAll() {
-        return jdbcRunRepository.findAll();
+        return runRepository.findAll();
     }
 
     //
     @GetMapping("/{id}")
     Run findById(@PathVariable Integer id) {
-        Optional<Run> run = jdbcRunRepository.findById(id);
-//        return run.orElseThrow(() -> new RunNotFoundException());
+        Optional<Run> run = runRepository.findById(id);
         return run.orElseThrow(RunNotFoundException::new);
+    }
+
+    @GetMapping("/location/{location}")
+    List<Run> findByLocation(@PathVariable String location) {
+        return runRepository.findAllByLocation(location);
     }
 
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("")
     void create(@Valid @RequestBody Run run) {
-        jdbcRunRepository.create(run);
+        runRepository.save(run);
     }
 
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @PutMapping("/{id}")
     void update(@Valid @RequestBody Run run, @PathVariable Integer id) {
-        jdbcRunRepository.update(run, id);
+        runRepository.save(run);
     }
 
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @DeleteMapping("/{id}")
     void delete(@PathVariable Integer id) {
-        jdbcRunRepository.delete(id);
+        runRepository.delete(runRepository.findById(id).get());
     }
 
 }
